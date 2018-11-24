@@ -11,17 +11,17 @@ export abstract class Component {}
 export const EVENTS = {
   /// Emitted with an `Entity` whenever a new entity
   /// is created in the `World`.
-  ENTITY_CREATED: Symbol(),
+  ENTITY_CREATED: Symbol("ENTITY_CREATED"),
   /// Emitted with an `Entity` just before the entity
   /// is deleted from the world. Note that the entity
   /// will not be valid on the next tick.
-  ENTITY_DELETED: Symbol(),
+  ENTITY_DELETED: Symbol("ENTITY_DELETED"),
   /// Emitted with a `Component` and an `Entity`
   /// whenever a component was assigned to an entity.
-  COMPONENT_ASSIGNED: Symbol(),
+  COMPONENT_ASSIGNED: Symbol("COMPONENT_ASSIGNED"),
   /// Emitted with a `Component` and an `Entity`
   /// whenever a component was removed from an entity.
-  COMPONENT_REMOVED: Symbol()
+  COMPONENT_REMOVED: Symbol("COMPONENT_REMOVED")
 }
 
 export class World {
