@@ -35,7 +35,7 @@ Stops the `World`, pausing `tick` calls.
 
 **`World#createEntity(): Entity`**
 
-Creates and returns a new `Entity` with a unique ID.
+Creates and returns a new `Entity` with a unique ID. Emits the `ENTITY_CREATED` event.
 
 **`World#getEntity(id: number): Entity | undefined`**
 
