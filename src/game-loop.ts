@@ -76,10 +76,6 @@ export class LoginSystem extends ecs.System {
 }
 
 export class GameInputSystem extends ecs.System {
-  constructor() {
-    super()
-  }
-
   configure() {
     this.subscribe(EVENTS.LOGIN_SUCCESS, this.handleLoginSuccess.bind(this))
     this.subscribe(NET_EVENTS.PLAYER_INPUT, this.handlePlayerInput.bind(this))
@@ -94,6 +90,11 @@ export class GameInputSystem extends ecs.System {
         this.world.releaseEntity(entity.getId())
       }
     })
+  }
+
+  unconfigure() {
+    this.entityIdsByName.clear()
+    this.quittingEntityIds.clear()
   }
 
   handleLoginSuccess(username: string, entity: ecs.Entity): void {

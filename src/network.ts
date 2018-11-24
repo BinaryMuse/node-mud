@@ -31,7 +31,6 @@ export class HasConnection extends ecs.Component {
 }
 
 export class NetworkSystem extends ecs.System {
-
   constructor(port: number) {
     super()
     this.port = port
