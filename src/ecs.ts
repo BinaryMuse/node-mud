@@ -58,8 +58,8 @@ export class World {
 
   removeSystem<T extends System>(system: T): void {
     this.systems.delete(system)
-    system.unconfigure()
     system.unsubscribeAll()
+    system.unconfigure()
   }
 
   emit(event: symbol, ...args: any[]): boolean {
