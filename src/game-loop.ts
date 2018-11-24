@@ -40,24 +40,32 @@ export class LoginSystem extends ecs.System {
       if (login) {
         switch (login.state) {
           case "WAITING_USERNAME":
-            login.state = "WAITING_PASSWORD"
-            login.username = line
-            this.send(entity, "Please enter your password: ")
+            this.handleUsernameEntry(entity, login, line)
             break
           case "WAITING_PASSWORD":
-            const realPass = this.database.get(login.username!)
-            if (!realPass || realPass !== line) {
-              this.send(entity, "\nYour username or password was incorrect. Please try again.\nPlease enter your username: ")
-              login.state = "WAITING_USERNAME"
-            } else if (realPass === line) {
-              this.send(entity, "Logging you in...\n")
-              entity.removeComponent(LoggingIn)
-              this.world.emit(EVENTS.LOGIN_SUCCESS, login.username, entity)
-            }
+            this.handlePasswordEntry(entity, login, line)
             break
         }
       }
     })
+  }
+
+  handleUsernameEntry(entity: ecs.Entity, login: LoggingIn, input: string): void {
+    login.state = "WAITING_PASSWORD"
+    login.username = input
+    this.send(entity, "Please enter your password: ")
+  }
+
+  handlePasswordEntry(entity: ecs.Entity, login: LoggingIn, input: string): void {
+    const realPass = this.database.get(login.username!)
+    if (!realPass || realPass !== input) {
+      this.send(entity, "\nYour username or password was incorrect. Please try again.\nPlease enter your username: ")
+      login.state = "WAITING_USERNAME"
+    } else if (realPass === input) {
+      this.send(entity, "Logging you in...\n")
+      entity.removeComponent(LoggingIn)
+      this.world.emit(EVENTS.LOGIN_SUCCESS, login.username, entity)
+    }
   }
 
   send(entity: ecs.Entity, data: string | Buffer): void {
