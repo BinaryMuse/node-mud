@@ -18,7 +18,7 @@ export const EVENTS = {
   ENTITY_DELETED: Symbol("ENTITY_DELETED"),
   /// Emitted with a `Component` and an `Entity`
   /// whenever a component was assigned to an entity.
-  COMPONENT_ASSIGNED: Symbol("COMPONENT_ASSIGNED"),
+  COMPONENT_ADDED: Symbol("COMPONENT_ASSIGNED"),
   /// Emitted with a `Component` and an `Entity`
   /// whenever a component was removed from an entity.
   COMPONENT_REMOVED: Symbol("COMPONENT_REMOVED")
@@ -157,7 +157,7 @@ export class Entity {
     const type = <Constructor<T>>component.constructor
     this.components.set(type, component)
     this.world.registerComponent(type, this.getId())
-    this.world.emit(EVENTS.COMPONENT_ASSIGNED, component, this)
+    this.world.emit(EVENTS.COMPONENT_ADDED, component, this)
   }
 
   hasComponent<T extends Component>(klass: Constructor<T>): boolean {
@@ -211,7 +211,7 @@ export class System {
   }
 
   subscribeToComponentAssignment<T extends Component>(klass: Constructor<T>, callback: (component: T, entity: Entity) => void): void {
-    this.subscribe(EVENTS.COMPONENT_ASSIGNED, (component: Component, entity: Entity) => {
+    this.subscribe(EVENTS.COMPONENT_ADDED, (component: Component, entity: Entity) => {
       if (component.constructor === klass) {
         callback(<T>component, entity)
       }
