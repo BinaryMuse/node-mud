@@ -147,6 +147,48 @@ export class World {
   private recycledIds: Set<number> = new Set()
 }
 
+export class Entity {
+  constructor(world: World, id: number) {
+    this.world = world
+    this.id = id
+  }
+
+  addComponent<T extends Component>(component: T): void {
+    const type = <Constructor<T>>component.constructor
+    this.components.set(type, component)
+    this.world.registerComponent(type, this.getId())
+    this.world.emit(EVENTS.COMPONENT_ASSIGNED, component, this)
+  }
+
+  hasComponent<T extends Component>(klass: Constructor<T>): boolean {
+    return this.components.has(klass)
+  }
+
+  getComponent<T extends Component>(klass: Constructor<T>): T | undefined {
+    return <T>this.components.get(klass)
+  }
+
+  removeComponent<T extends Component>(klass: Constructor<T>): boolean {
+    const component = this.getComponent(klass)
+    if (component) {
+      this.components.delete(klass)
+      this.world.unregisterComponent(klass, this.getId())
+      this.world.emit(EVENTS.COMPONENT_REMOVED, component, this)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  getId(): number {
+    return this.id
+  }
+
+  private world: World
+  private id: number
+  private components: Map<Constructor<Component>, Component> = new Map()
+}
+
 export class System {
   beginConfigure(world: World) {
     this.world_ = world
@@ -216,46 +258,4 @@ export class System {
 
   private world_: World | null = null
   private subscriptions: Map<Symbol, Map<EventEmitterCallback, Function>> = new Map()
-}
-
-export class Entity {
-  constructor(world: World, id: number) {
-    this.world = world
-    this.id = id
-  }
-
-  addComponent<T extends Component>(component: T): void {
-    const type = <Constructor<T>>component.constructor
-    this.components.set(type, component)
-    this.world.registerComponent(type, this.getId())
-    this.world.emit(EVENTS.COMPONENT_ASSIGNED, component, this)
-  }
-
-  hasComponent<T extends Component>(klass: Constructor<T>): boolean {
-    return this.components.has(klass)
-  }
-
-  getComponent<T extends Component>(klass: Constructor<T>): T | undefined {
-    return <T>this.components.get(klass)
-  }
-
-  removeComponent<T extends Component>(klass: Constructor<T>): boolean {
-    const component = this.getComponent(klass)
-    if (component) {
-      this.components.delete(klass)
-      this.world.unregisterComponent(klass, this.getId())
-      this.world.emit(EVENTS.COMPONENT_REMOVED, component, this)
-      return true
-    } else {
-      return false
-    }
-  }
-
-  getId(): number {
-    return this.id
-  }
-
-  private world: World
-  private id: number
-  private components: Map<Constructor<Component>, Component> = new Map()
 }
