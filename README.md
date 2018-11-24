@@ -89,6 +89,58 @@ Removes the component data associated with the `Component` subclass `klass` and 
 
 Return the entity's ID.
 
+### Component
+
+A component is simply a class that tags an entity with some data. Components generally shouldn't contain any business logic and only exist to help systems know which entities to interact with.
+
+To create a custom component, simply subclass `Component` and add properties or getters/setters as appropriate.
+
 ### System
 
-Systems are the parts of the ECS architecture that actually do things; in general, each system is specialized and acts on entities that contain relevant components.
+Systems are the parts of the ECS architecture that actually do things; in general, each system is specialized and acts on entities that contain relevant components. In general, systems will act on the world by either (1) responding to events, or (2) iterating over certain entities during a game tick.
+
+When you subclass `System`, you can implement `configure`, `unconfigure`, and `tick` to customize the behavior of your system.
+
+**`System#configure(): void`**
+
+Called when the system is added to the world. Implement this function to customize behavior for your system. The world can be accessed in this method as `this.world`.
+
+**`System#unconfigure(): void`**
+
+Called when the system is removed from the world. Implement this function to customize behavior for your system. The world can be accessed in this method as `this.world`.
+
+**`System#tick(world: World, delta: number): void`**
+
+Called on every tick of the world. `delta` is the number of milliseconds since the last tick, or since `World#start` was called in the case of the first tick. Implement this function to customize behavior for your system.
+
+**`System#subscribe(event: Symbol, callback: Function): void`**
+
+Calls `World#subscribe(event, callback)` and automatically tracks the unsubscription function so that the subscriptions is automatically removed when the system is removed from the world.
+
+**`System#subscribeToComponentAssignment(klass: Constructor<Component>, callback: Function)`**
+
+It's often useful to know when a specific component type has been added to an entity. This uses the `COMPONENT_ASSIGNED` event under the hood to call the callback whenever a component of the type `klass` is added to any entity. The callback is called with the `Component` itself and the `Entity` it was added to.
+
+**`System#subscribeToComponentRemoval(klass: Constructor<Component>, callback: Function)`**
+
+It's often useful to know when a specific component type has been removed from an entity. This uses the `COMPONENT_REMOVED` event under the hood to call the callback whenever a component of the type `klass` is added to any entity. The callback is called with the `Component` itself and the `Entity` it was removed from.
+
+### Events
+
+There are a few built-in event types that a `World` will emit from time to time. Here are the events and the parameter types they're emitted with.
+
+**`ENTITY_CREATED(entity: Entity)`**
+
+Emitted when a new entity is created.
+
+**`ENTITY_DELETED`**
+
+Emitted just before an entity is deleted from the world. Accessing the entity asynchronously is not valid as the entity will be invalidated at the end of the current tick.
+
+**`COMPONENT_ADDED(component: Component, entity: Entity)`**
+
+Emitted when a component is added to an entity. Used by `System#subscribeToComponentAssignment`.
+
+**`COMPONENT_REMOVED(component: Component, entity: Entity)`**
+
+Emitted when a component is removed from an entity. Used by `System#subscribeToComponentRemoval`.
