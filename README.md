@@ -25,6 +25,14 @@ The world is a container for all the registered entities and systems. It perform
 
 Constructs a new `World`.
 
+**`World#start(interval: number): void`**
+
+Starts the `World`, calling the `tick` function of all registered systems every `interval` milliseconds.
+
+**`World#stop(): void`**
+
+Stops the `World`, pausing `tick` calls.
+
 **`World#createEntity(): Entity`**
 
 Creates and returns a new `Entity` with a unique ID.

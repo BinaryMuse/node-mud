@@ -25,6 +25,44 @@ export const EVENTS = {
 }
 
 export class World {
+  start(interval: number): void {
+    if (this.running) {
+      throw new Error("World is already running")
+    }
+
+    this.running = true
+    this.interval = interval
+    this.lastTick = new Date().getTime()
+    this.tickTimer = setTimeout(this.tick.bind(this), interval)
+  }
+
+  stop(): void {
+    if (!this.running) {
+      throw new Error("World is not running")
+    }
+
+    this.running = false
+    if (this.tickTimer) {
+      clearTimeout(this.tickTimer)
+      this.tickTimer = null
+    }
+  }
+
+  private tick(): void {
+    if (!this.running) {
+      return
+    }
+
+    const now = new Date().getTime()
+    const delta = now - this.lastTick
+    this.lastTick = now
+
+    for (const system of this.systems) {
+      system.tick(this, delta)
+    }
+    this.tickTimer = setTimeout(this.tick.bind(this), this.interval)
+  }
+
   createEntity(): Entity {
     let id
     if (this.recycledIds.size > 0) {
@@ -95,6 +133,11 @@ export class World {
     this.emitter.on(event, callback)
     return () => this.emitter.off(event, callback)
   }
+
+  private running: boolean = false
+  private tickTimer: NodeJS.Timeout | null = null
+  private lastTick: number = 0
+  private interval: number = 0
 
   private emitter: EventEmitter = new EventEmitter
   private lastId: number = 0
