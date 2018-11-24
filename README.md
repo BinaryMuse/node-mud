@@ -133,7 +133,7 @@ There are a few built-in event types that a `World` will emit from time to time.
 
 Emitted when a new entity is created.
 
-**`ENTITY_DELETED`**
+**`ENTITY_DELETED(entity: Entity)`**
 
 Emitted just before an entity is deleted from the world. Accessing the entity asynchronously is not valid as the entity will be invalidated at the end of the current tick.
 
