@@ -45,9 +45,9 @@ Adds a new system to the world. The `System`'s `configure()` method is called; s
 
 Removes a system from the world and unsubscribes it from all events. The `System`'s `unconfigure()` method is called; see the documentation of `System#unconfigure` for more information.
 
-**`World#emit(event: Symbol, ...args: any[]): boolean`**
+**`World#emit(event: Symbol, ...args: any[]): void`**
 
-Emits an event with the type `event` on the `World`'s `EventEmitter` along with the specified arguments. Returns the return value of the underlying [`EventEmitter#emit call`](https://nodejs.org/api/events.html#events_emitter_emit_eventname_args).
+Asynchronously (with `process.nextTick`) emits an event with the type `event` on the `World`'s `EventEmitter` along with the specified arguments.
 
 **`World#subscribe(event: Symbol, callback: Function): Function`**
 
