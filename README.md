@@ -37,6 +37,10 @@ Looks up an existing entity by its ID. Returns the `Entity` or `undefined` if it
 
 Deletes the entity with the given ID from the world. Emits the `ENTITY_DELETED` event just before deletion occurs. The ID of the deleted entity may be reused for future entities.
 
+**`World#withComponent(klass: Constructor<Component>): ReadonlyArray<Entity>`**
+
+Given a `Component` subclass `klass`, returns an array of `Entity` objects that have that component registered.
+
 **`World#addSystem(system: System): void`**
 
 Adds a new system to the world. The `System`'s `configure()` method is called; see the documentation of `System#configure` for more information.
