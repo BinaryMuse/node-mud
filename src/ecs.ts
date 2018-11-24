@@ -85,8 +85,10 @@ export class World {
     system.unconfigure()
   }
 
-  emit(event: symbol, ...args: any[]): boolean {
-    return this.emitter.emit(event, ...args)
+  emit(event: symbol, ...args: any[]): void {
+    process.nextTick(() => {
+      this.emitter.emit(event, ...args)
+    })
   }
 
   subscribe(event: symbol, callback: EventEmitterCallback): Function {
