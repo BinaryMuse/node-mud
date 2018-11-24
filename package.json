@@ -11,11 +11,13 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^10.12.10",
+    "@types/pegjs": "^0.10.1",
     "@types/split2": "^2.1.6",
     "ts-node": "^7.0.1",
     "typescript": "^3.1.6"
   },
   "dependencies": {
+    "pegjs": "^0.10.0",
     "split2": "^3.0.0"
   }
 }
