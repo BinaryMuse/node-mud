@@ -51,7 +51,7 @@ export class World {
     this.recycledIds.add(id)
   }
 
-  withComponent<T extends Component>(klass: Constructor<T>): Readonly<Array<Entity>> {
+  withComponent<T extends Component>(klass: Constructor<T>): ReadonlyArray<Entity> {
     if (this.entitiesPerComponent.has(klass)) {
       const ids = [...this.entitiesPerComponent.get(klass)!.values()]
       return ids.map(this.getEntity.bind(this))
