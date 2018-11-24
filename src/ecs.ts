@@ -51,6 +51,29 @@ export class World {
     this.recycledIds.add(id)
   }
 
+  withComponent<T extends Component>(klass: Constructor<T>): Readonly<Array<Entity>> {
+    if (this.entitiesPerComponent.has(klass)) {
+      const ids = [...this.entitiesPerComponent.get(klass)!.values()]
+      return ids.map(this.getEntity.bind(this))
+    } else {
+      return []
+    }
+  }
+
+  registerComponent<T extends Component>(klass: Constructor<T>, entityId: number): void {
+    if (!this.entitiesPerComponent.has(klass)) {
+      this.entitiesPerComponent.set(klass, new Set([entityId]))
+    } else {
+      this.entitiesPerComponent.get(klass)!.add(entityId)
+    }
+  }
+
+  unregisterComponent<T extends Component>(klass: Constructor<T>, entityId: number): void {
+    if (this.entitiesPerComponent.has(klass)) {
+      this.entitiesPerComponent.get(klass)!.delete(entityId)
+    }
+  }
+
   addSystem<T extends System>(system: T): void {
     system.beginConfigure(this)
     this.systems.add(system)
@@ -74,6 +97,7 @@ export class World {
   private emitter: EventEmitter = new EventEmitter
   private lastId: number = 0
   private entities: Map<number, Entity> = new Map()
+  private entitiesPerComponent: Map<Constructor<Component>, Set<number>> = new Map()
   private systems: Set<System> = new Set()
   private recycledIds: Set<number> = new Set()
 }
@@ -158,6 +182,7 @@ export class Entity {
   addComponent<T extends Component>(component: T): void {
     const type = <Constructor<T>>component.constructor
     this.components.set(type, component)
+    this.world.registerComponent(type, this.getId())
     this.world.emit(EVENTS.COMPONENT_ASSIGNED, component, this)
   }
 
@@ -173,6 +198,7 @@ export class Entity {
     const component = this.getComponent(klass)
     if (component) {
       this.components.delete(klass)
+      this.world.unregisterComponent(klass, this.getId())
       this.world.emit(EVENTS.COMPONENT_REMOVED, component, this)
       return true
     } else {
