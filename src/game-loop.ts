@@ -1,5 +1,6 @@
 import * as ecs from "./ecs"
 import { HasConnection, EVENTS as NET_EVENTS } from "./network"
+import { parseCommand } from "./command";
 
 export const EVENTS = {
   /// Emitted with `username: string` and `entity: Entity`
@@ -11,6 +12,8 @@ class LoggingIn extends ecs.Component {
   public state: "WAITING_USERNAME" | "WAITING_PASSWORD" = "WAITING_USERNAME"
   public username: string | null = null
 }
+
+class LoggingOut extends ecs.Component {}
 
 class InGameWorld extends ecs.Component {
   constructor(username: string) {
@@ -81,8 +84,7 @@ export class GameInputSystem extends ecs.System {
     this.subscribe(NET_EVENTS.PLAYER_INPUT, this.handlePlayerInput.bind(this))
 
     this.subscribeToComponentRemoval(HasConnection, (_component, entity) => {
-      if (this.quittingEntityIds.has(entity.getId())) {
-        this.quittingEntityIds.delete(entity.getId())
+      if (entity.hasComponent(LoggingOut)) {
         const inGame = entity.getComponent(InGameWorld)
         if (inGame) {
           this.entityIdsByName.delete(inGame.username)
@@ -94,7 +96,6 @@ export class GameInputSystem extends ecs.System {
 
   unconfigure() {
     this.entityIdsByName.clear()
-    this.quittingEntityIds.clear()
   }
 
   handleLoginSuccess(username: string, entity: ecs.Entity): void {
@@ -117,10 +118,21 @@ export class GameInputSystem extends ecs.System {
       return
     }
 
-    switch (line.toLowerCase()) {
-      case 'quit':
-        this.quittingEntityIds.add(entity.getId())
+    const command = parseCommand(line)
+
+    if (!command) {
+      this.send(entity, "I don't understand that.\n")
+      return
+    }
+
+    switch (command.type) {
+      case "quit":
+        entity.addComponent(new LoggingOut())
         this.world.emit(NET_EVENTS.PERFORM_DISCONNECT, entity)
+        break
+      default:
+        this.send(entity, "You can't do that.\n")
+        console.error(`[ERROR] Unhandled command: ${line} [${JSON.stringify(command)}]`)
         break
     }
   }
@@ -134,6 +146,9 @@ export class GameInputSystem extends ecs.System {
     }
   }
 
+  send(entity: ecs.Entity, data: string | Buffer): void {
+    this.world.emit(NET_EVENTS.SEND_DATA, entity, data)
+  }
+
   private entityIdsByName: Map<string, number> = new Map()
-  private quittingEntityIds: Set<number> = new Set()
 }
