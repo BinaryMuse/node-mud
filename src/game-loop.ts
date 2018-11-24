@@ -5,7 +5,7 @@ import { parseCommand } from "./command";
 export const EVENTS = {
   /// Emitted with `username: string` and `entity: Entity`
   /// when a player successfully logs in under a given name
-  LOGIN_SUCCESS: Symbol(),
+  LOGIN_SUCCESS: Symbol("LOGIN_SUCCESS"),
 }
 
 class LoggingIn extends ecs.Component {
