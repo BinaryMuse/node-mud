@@ -123,7 +123,7 @@ It's often useful to know when a specific component type has been added to an en
 
 **`System#subscribeToComponentRemoval(klass: Constructor<Component>, callback: Function)`**
 
-It's often useful to know when a specific component type has been removed from an entity. This uses the `COMPONENT_REMOVED` event under the hood to call the callback whenever a component of the type `klass` is added to any entity. The callback is called with the `Component` itself and the `Entity` it was removed from.
+It's often useful to know when a specific component type has been removed from an entity. This uses the `COMPONENT_REMOVED` event under the hood to call the callback whenever a component of the type `klass` is removed from any entity. The callback is called with the `Component` itself and the `Entity` it was removed from.
 
 ### Events
 
